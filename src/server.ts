@@ -84,7 +84,52 @@ app.post("/api/feedback", async (req: Request, res: Response) => {
       });
     }
   } catch (error) {
-    console.error("Error sending protocol report:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+});
+app.post("/api/customer", async (req: Request, res: Response) => {
+  try {
+    const {
+      passengerName,
+      contact,
+      email,
+      protocolOfficer,
+      badgeVerification,
+      checkInIssues,
+    } = req.body;
+
+    const emailData: any = {
+      passengerName,
+      contact,
+      email,
+      protocolOfficer,
+      badgeVerification,
+      checkInIssues,
+      companyName: "Passenger Details",
+    };
+
+    const emailSent = await sendEmail(
+      process.env.ADMIN_EMAIL!,
+      process.env.ADMIN_EMAIL!,
+      "customer.ejs",
+      emailData
+    );
+
+    if (emailSent) {
+      return res.status(200).json({
+        success: true,
+        message: "Check-in report sent successfully",
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send customer details",
+      });
+    }
+  } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Server error",
@@ -140,7 +185,6 @@ app.post("/api/booking", async (req: Request, res: Response) => {
         .json({ success: false, message: "Failed to send email" });
     }
   } catch (error) {
-    console.error("Error sending email:", error);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 });

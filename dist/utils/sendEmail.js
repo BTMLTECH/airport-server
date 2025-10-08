@@ -12,7 +12,7 @@ dotenv_1.default.config();
 const sendMailToUser = async (options) => {
     const transporter = nodemailer_1.default.createTransport({
         host: process.env.SMPT_HOST,
-        port: parseInt(process.env.SMPT_PORT || '587'),
+        port: parseInt(process.env.SMPT_PORT || "587"),
         secure: false,
         auth: {
             user: process.env.SMPT_MAIL,
@@ -21,15 +21,15 @@ const sendMailToUser = async (options) => {
         tls: {
             rejectUnauthorized: false,
         },
-        logger: process.env.NODE_ENV !== 'production',
-        debug: process.env.NODE_ENV !== 'production',
+        logger: process.env.NODE_ENV !== "production",
+        debug: process.env.NODE_ENV !== "production",
     });
     const { email, subject, template, data } = options;
     try {
-        const templatePath = path_1.default.join(__dirname, '../mail', template);
+        const templatePath = path_1.default.join(__dirname, "../mail", template);
         const html = await ejs_1.default.renderFile(templatePath, data);
         const fromEmail = process.env.SMPT_MAIL;
-        const displayName = data?.companyName || 'Your Company';
+        const displayName = data?.companyName || "Your Company";
         const mailOptions = {
             from: `"${displayName}" <${fromEmail}>`,
             to: email,
@@ -43,7 +43,6 @@ const sendMailToUser = async (options) => {
         };
     }
     catch (error) {
-        console.error('Error sending email:', error);
         return {
             accepted: [],
             rejected: [email],

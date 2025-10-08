@@ -1,7 +1,7 @@
-import nodemailer, { Transporter } from 'nodemailer';
-import ejs from 'ejs';
-import path from 'path';
-import dotenv from 'dotenv';
+import nodemailer, { Transporter } from "nodemailer";
+import ejs from "ejs";
+import path from "path";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -17,7 +17,7 @@ export const sendMailToUser = async (
 ): Promise<{ accepted: string[]; rejected: string[] }> => {
   const transporter: Transporter = nodemailer.createTransport({
     host: process.env.SMPT_HOST,
-    port: parseInt(process.env.SMPT_PORT || '587'),
+    port: parseInt(process.env.SMPT_PORT || "587"),
     secure: false,
     auth: {
       user: process.env.SMPT_MAIL,
@@ -26,18 +26,18 @@ export const sendMailToUser = async (
     tls: {
       rejectUnauthorized: false,
     },
-    logger: process.env.NODE_ENV !== 'production',
-    debug: process.env.NODE_ENV !== 'production',
+    logger: process.env.NODE_ENV !== "production",
+    debug: process.env.NODE_ENV !== "production",
   });
 
   const { email, subject, template, data } = options;
 
   try {
-    const templatePath = path.join(__dirname, '../mail', template);
+    const templatePath = path.join(__dirname, "../mail", template);
     const html = await ejs.renderFile(templatePath, data);
 
     const fromEmail = process.env.SMPT_MAIL;
-    const displayName = data?.companyName || 'Your Company';
+    const displayName = data?.companyName || "Your Company";
 
     const mailOptions = {
       from: `"${displayName}" <${fromEmail}>`,
@@ -53,7 +53,6 @@ export const sendMailToUser = async (
       rejected: info.rejected || [],
     };
   } catch (error) {
-    console.error('Error sending email:', error);
     return {
       accepted: [],
       rejected: [email],
