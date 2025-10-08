@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 
 const allowedOrigins = [
   // "http://localhost:8080",
-  // "http://localhost:8081",
+  // "http://localhost:8082",
   process.env.FRONTEND_LOGBOOK!,
   process.env.FRONTEND_PROTOCOL!,
 ];
@@ -33,74 +33,65 @@ app.use(
   })
 );
 
-app.post("/api/airport", async (req: Request, res: Response) => {
+app.post("/api/feedback", async (req: Request, res: Response) => {
   try {
     const {
-      date,
-      flight,
-      time,
-      protocolOfficer,
-      passengerName,
-      company,
+      serviceType,
+
+      // Arrival
       meetingLocation,
-      baggageAssistance,
-      handoverToDriver,
       luggageNo,
       arrivalComment,
       arrivalRating,
+
+      // Departure
       protocolOfficerMeet,
-      meetingPlace,
-      immigrationFormProvided,
-      fastTrackProvided,
+      immigrationAssistance,
       meetGreetLevel,
-      handoverToAirside,
-      airsideOfficerName,
-      airsideOfficerTel,
     } = req.body;
 
+    const emailData: any = {
+      serviceType,
+      companyName: "BTM Airport Services Feedback",
+    };
+
+    if (serviceType === "arrival") {
+      emailData.meetingLocation = meetingLocation;
+      emailData.luggageNo = luggageNo;
+      emailData.arrivalComment = arrivalComment;
+      emailData.arrivalRating = arrivalRating;
+    } else if (serviceType === "departure") {
+      emailData.protocolOfficerMeet = protocolOfficerMeet;
+      emailData.immigrationAssistance = immigrationAssistance;
+      emailData.meetGreetLevel = meetGreetLevel;
+    }
     const emailSent = await sendEmail(
       process.env.ADMIN_EMAIL!,
-      "New Protocol Report",
+      "New Feedback",
       "protocol.ejs",
-      {
-        date,
-        flight,
-        time,
-        protocolOfficer,
-        passengerName,
-        company,
-        meetingLocation,
-        baggageAssistance,
-        handoverToDriver,
-        luggageNo,
-        arrivalComment,
-        arrivalRating,
-        protocolOfficerMeet,
-        meetingPlace,
-        immigrationFormProvided,
-        fastTrackProvided,
-        meetGreetLevel,
-        handoverToAirside,
-        airsideOfficerName,
-        airsideOfficerTel,
-        companyName: "Airport Protocol Services",
-      }
+      emailData
     );
 
     if (emailSent) {
-      return res
-        .status(200)
-        .json({ success: true, message: "Protocol report sent successfully" });
+      return res.status(200).json({
+        success: true,
+        message: "Protocol report sent successfully",
+      });
     } else {
-      return res
-        .status(500)
-        .json({ success: false, message: "Failed to send email" });
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send email",
+      });
     }
   } catch (error) {
     console.error("Error sending protocol report:", error);
-    return res.status(500).json({ success: false, message: "Server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 });
+
 app.post("/api/booking", async (req: Request, res: Response) => {
   try {
     const {

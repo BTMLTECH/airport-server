@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>
-    <%= companyName %> - Protocol Report
+    <%= companyName %> New Feedback
   </title>
   <style>
     body {
@@ -26,7 +26,7 @@
 
     .email-header {
       background-color: #003366;
-      color: #ffffff;
+      color: #fff;
       padding: 15px;
       text-align: center;
       font-size: 20px;
@@ -75,130 +75,64 @@
 <body>
   <div class="email-wrapper">
     <div class="email-header">
-      Protocol Report - <%= companyName %>
+      New Feedback - <%= companyName %>
     </div>
     <div class="email-body">
       <table>
         <tr>
-          <th>Date</th>
+          <th>Service Type</th>
           <td>
-            <%= date %>
+            <%= serviceType %>
           </td>
         </tr>
-        <tr>
-          <th>Flight</th>
-          <td>
-            <%= flight %>
-          </td>
-        </tr>
-        <tr>
-          <th>Time</th>
-          <td>
-            <%= time %>
-          </td>
-        </tr>
-        <tr>
-          <th>Protocol Officer</th>
-          <td>
-            <%= protocolOfficer %>
-          </td>
-        </tr>
-        <tr>
-          <th>Passenger Name</th>
-          <td>
-            <%= passengerName %>
-          </td>
-        </tr>
-        <tr>
-          <th>Company</th>
-          <td>
-            <%= company %>
-          </td>
-        </tr>
-        <tr>
-          <th>Meeting Location</th>
-          <td>
-            <%= meetingLocation %>
-          </td>
-        </tr>
-        <tr>
-          <th>Baggage Assistance</th>
-          <td>
-            <%= baggageAssistance %>
-          </td>
-        </tr>
-        <tr>
-          <th>Handover To Driver</th>
-          <td>
-            <%= handoverToDriver %>
-          </td>
-        </tr>
-        <tr>
-          <th>No. of Luggage</th>
-          <td>
-            <%= luggageNo %>
-          </td>
-        </tr>
-        <tr>
-          <th>Arrival Comment</th>
-          <td>
-            <%= arrivalComment %>
-          </td>
-        </tr>
-        <tr>
-          <th>Arrival Rating</th>
-          <td>
-            <%= arrivalRating %>
-          </td>
-        </tr>
-        <tr>
-          <th>Protocol Officer Met</th>
-          <td>
-            <%= protocolOfficerMeet %>
-          </td>
-        </tr>
-        <tr>
-          <th>Meeting Place</th>
-          <td>
-            <%= meetingPlace %>
-          </td>
-        </tr>
-        <tr>
-          <th>Immigration Form Provided</th>
-          <td>
-            <%= immigrationFormProvided %>
-          </td>
-        </tr>
-        <tr>
-          <th>Fast Track Provided</th>
-          <td>
-            <%= fastTrackProvided %>
-          </td>
-        </tr>
-        <tr>
-          <th>Meet & Greet Level</th>
-          <td>
-            <%= meetGreetLevel %>
-          </td>
-        </tr>
-        <tr>
-          <th>Handover To Airside</th>
-          <td>
-            <%= handoverToAirside %>
-          </td>
-        </tr>
-        <tr>
-          <th>Airside Officer Name</th>
-          <td>
-            <%= airsideOfficerName %>
-          </td>
-        </tr>
-        <tr>
-          <th>Airside Officer Tel</th>
-          <td>
-            <%= airsideOfficerTel %>
-          </td>
-        </tr>
+
+        <% if (serviceType==="arrival" ) { %>
+          <tr>
+            <th>Meeting Location</th>
+            <td>
+              <%= meetingLocation %>
+            </td>
+          </tr>
+          <tr>
+            <th>No. of Luggage</th>
+            <td>
+              <%= luggageNo %>
+            </td>
+          </tr>
+          <tr>
+            <th>Arrival Comment</th>
+            <td>
+              <%= arrivalComment %>
+            </td>
+          </tr>
+          <tr>
+            <th>Arrival Rating</th>
+            <td>
+              <%= arrivalRating %>
+            </td>
+          </tr>
+          <% } %>
+
+            <% if (serviceType==="departure" ) { %>
+              <tr>
+                <th>Protocol Officer Met</th>
+                <td>
+                  <%= protocolOfficerMeet %>
+                </td>
+              </tr>
+              <tr>
+                <th>Immigration Assistance</th>
+                <td>
+                  <%= immigrationAssistance %>
+                </td>
+              </tr>
+              <tr>
+                <th>Meet & Greet Level</th>
+                <td>
+                  <%= meetGreetLevel %>
+                </td>
+              </tr>
+              <% } %>
       </table>
     </div>
     <div class="email-footer">
