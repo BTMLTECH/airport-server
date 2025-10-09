@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>
-        <%= companyName %> Passager Detail
+        <%= companyName %> Passenger Detail
     </title>
     <style>
         body {
@@ -49,6 +49,7 @@
             border: 1px solid #ccc;
             padding: 10px;
             text-align: left;
+            vertical-align: top;
         }
 
         th {
@@ -60,6 +61,16 @@
 
         tr:nth-child(even) {
             background-color: #f9f9f9;
+        }
+
+        .comment-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #003366;
+            margin-top: 15px;
+            padding: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
         }
 
         .email-footer {
@@ -115,6 +126,17 @@
                         <%= checkInIssues %>
                     </td>
                 </tr>
+
+                <% if (checkInIssues==="yes" && checkInComment) { %>
+                    <tr>
+                        <th>Check-in Issue Details</th>
+                        <td>
+                            <div class="comment-box">
+                                <%= checkInComment %>
+                            </div>
+                        </td>
+                    </tr>
+                    <% } %>
             </table>
         </div>
         <div class="email-footer">
