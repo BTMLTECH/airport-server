@@ -1,12 +1,13 @@
-import ejs from "ejs";
-import path from "path";
-import { sendMailToUser } from "./sendEmail";
+import ejs from 'ejs';
+import path from 'path';
+import sendMailToUser from './sendEmail';
+
 
 export const sendEmail = async (
   email: string,
   subject: string,
   template: string,
-  data: object
+  data: object,
 ): Promise<boolean> => {
   try {
     await ejs.renderFile(path.join(__dirname, `../mail/${template}`), data);

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Booking Report - <%= companyName %></title>
+  <title>Your Booking Confirmation - <%= companyName %></title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -62,17 +62,19 @@
       background-color: #f9f9f9;
     }
 
-    ul {
-      margin: 0;
-      padding-left: 20px;
+    .service-list {
+      list-style-type: none;
+      padding-left: 0;
     }
 
-    .email-footer {
-      background-color: #e0f0ff;
-      padding: 15px;
-      text-align: center;
-      font-size: 13px;
-      color: #003366;
+    .service-list li {
+      margin-bottom: 6px;
+    }
+
+    .sub-service-list {
+      list-style-type: circle;
+      margin-left: 20px;
+      padding-left: 0;
     }
   </style>
 </head>
@@ -80,35 +82,46 @@
 <body>
   <div class="email-wrapper">
     <div class="email-header">
-      Booking Report - <%= companyName %>
+      Your Booking Confirmation - <%= companyName %>
     </div>
 
     <div class="email-body">
-      <p>Here are the booking details submitted by the client:</p>
+      <p>Hi <%= fullName %>,</p>
+      <p>Thank you for booking with <%= companyName %>. Here’s a summary of your booking:</p>
+
       <table>
         <tr>
-          <th>Full Name</th>
-          <td><%= fullName %></td>
+          <th>Booking Reference</th>
+          <td><%= reference %></td>
         </tr>
         <tr>
-          <th>Email</th>
-          <td><%= email %></td>
+          <th>Booking Type</th>
+          <td><%= type.charAt(0).toUpperCase() + type.slice(1) %></td>
         </tr>
         <tr>
-          <th>Phone</th>
-          <td><%= phone %></td>
-        </tr>
-
-        <tr>
-          <th>Service(s)</th>
+          <th>Flight Info</th>
           <td>
-            <% if (selectedServicesDetails && selectedServicesDetails.length > 0) { %>
+            Date: <%= flightDate %><br />
+            Time: <%= flightTime %><br />
+            Flight Number: <%= flightNumber %><br />
+            Departure: <%= departureCity %><br />
+            Arrival: <%= arrivalCity %>
+          </td>
+        </tr>
+        <tr>
+          <th>Passengers</th>
+          <td><%= passengers %></td>
+        </tr>
 
+        <% if (selectedServicesDetails && selectedServicesDetails.length > 0) { %>
+          <tr>
+            <th>Services Booked</th>
+            <td>
               <!-- Online Services -->
               <% const onlineServices = selectedServicesDetails.filter(s => s.serviceType === 'online'); %>
               <% if (onlineServices.length) { %>
                 <strong>Online Services Paid For:</strong>
-                <ul>
+                <ul class="service-list">
                   <% onlineServices.forEach(service => { %>
                     <li>
                       <%= service.label %> - ₦<%= service.price?.toLocaleString() %>
@@ -122,13 +135,13 @@
               <% const offlineServices = selectedServicesDetails.filter(s => s.serviceType === 'offline'); %>
               <% if (offlineServices.length) { %>
                 <strong>Offline Services to be arranged:</strong>
-                <ul>
+                <ul class="service-list">
                   <% offlineServices.forEach(service => { %>
                     <li>
                       <%= service.label %>
                       <% if (service.price) { %> - ₦<%= service.price.toLocaleString() %><% } %>
                       <% if (service.options?.length) { %>
-                        <ul>
+                        <ul class="sub-service-list">
                           <% service.options.forEach(option => { %>
                             <li><%= option.type %> - <%= option.priceRange %></li>
                           <% }) %>
@@ -138,42 +151,7 @@
                   <% }) %>
                 </ul>
               <% } %>
-
-            <% } else { %>
-              <%= services.join(", ") %>
-            <% } %>
-          </td>
-        </tr>
-
-        <tr>
-          <th>Flight Date</th>
-          <td><%= flightDate %></td>
-        </tr>
-        <tr>
-          <th>Flight Time</th>
-          <td><%= flightTime %></td>
-        </tr>
-        <tr>
-          <th>Flight Number</th>
-          <td><%= flightNumber %></td>
-        </tr>
-        <tr>
-          <th>Departure City</th>
-          <td><%= departureCity %></td>
-        </tr>
-        <tr>
-          <th>Arrival City</th>
-          <td><%= arrivalCity %></td>
-        </tr>
-        <tr>
-          <th>Passengers</th>
-          <td><%= passengers %></td>
-        </tr>
-
-        <% if (specialRequests) { %>
-          <tr>
-            <th>Special Requests</th>
-            <td><%= specialRequests %></td>
+            </td>
           </tr>
         <% } %>
 
@@ -189,38 +167,24 @@
           </tr>
         <% } %>
 
-        <% if (discountCode) { %>
+        <% if (specialRequests) { %>
           <tr>
-            <th>Discount Code</th>
-            <td><%= discountCode %></td>
-          </tr>
-        <% } %>
-
-        <% if (referralSource) { %>
-          <tr>
-            <th>Referral Source</th>
-            <td><%= referralSource %></td>
+            <th>Special Requests</th>
+            <td><%= specialRequests %></td>
           </tr>
         <% } %>
 
         <tr>
-          <th>Total Price</th>
+          <th>Total Paid</th>
           <td>
             ₦<%= totalPrice.toLocaleString() %>
             <% if (totalDollarPrice) { %> / $<%= totalDollarPrice.toFixed(2) %><% } %>
           </td>
         </tr>
-
-        <tr>
-          <th>Booking Type</th>
-          <td><%= type.charAt(0).toUpperCase() + type.slice(1) %></td>
-        </tr>
-
-        <tr>
-          <th>Payment Reference</th>
-          <td><%= reference %></td>
-        </tr>
       </table>
+
+      <p>If you have any questions or need assistance, feel free to contact us at sourcing@btmlimited.net.</p>
+      <p>Safe travels!</p>
     </div>
 
     <div class="email-footer">

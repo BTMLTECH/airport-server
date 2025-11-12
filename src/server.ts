@@ -1,3 +1,5 @@
+
+
 import express, { Request, Response } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -6,152 +8,218 @@ import { sendEmail } from "./utils/emailUtil";
 import mongoose from "mongoose";
 import { Payment } from "./model/Payment";
 import axios from "axios";
-
-const FRONTEND_URL = process.env.FRONTEND_URL;
-const PAYSTACK_SECRET_KEY = (process.env.PAYSTACK_SECRET_KEY || "").trim();
+import cron from "node-cron";
+import { FailedEmail } from "./model/FailedEmail";
+import { Feedback } from "./model/Feedback";
+import { Customer } from "./model/Customer";
 
 dotenv.config();
+
+const PAYSTACK_SECRET_KEY = (process.env.PAYSTACK_SECRET_KEY || "").trim();
+const MONGO_URI = process.env.MONGO_URI!;
+const FRONTEND = process.env.FRONTEND_PROTOCOL!
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// =============================
-// 🧩 MongoDB Connection
-// =============================
-const MONGO_URI =
-  process.env.MONGO_URI || "mongodb://127.0.0.1:27017/btm_payjeje";
 
 mongoose
   .connect(MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => {
-    console.error("❌ MongoDB connection error:", err);
+  .then(() => {
+
+  cron.schedule("*/10 * * * *", async () => {
+
+  const failedEmails = await FailedEmail.find({ attempts: { $lt: 5 } });
+
+  for (const email of failedEmails) {
+    try {
+      await sendEmail(email.to, email.subject, email.template, email.payload);
+      await email.deleteOne();
+    } catch (err: any) {
+      email.attempts += 1;
+      email.lastAttempt = new Date();
+      email.error = err.message;
+      await email.save();
+    }
+  }
+});
+
+
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+  })
+  .catch(() => {
     process.exit(1);
   });
 
-// Middleware
-app.use(bodyParser.json());
 
-const allowedOrigins = [
-  // "http://localhost:8080",
-  // "http://localhost:8082",
-  process.env.FRONTEND_LOGBOOK!,
-  process.env.FRONTEND_PROTOCOL!,
-];
+app.use(bodyParser.json());
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) {
-        return callback(null, true);
-      }
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+      if (!origin) return callback(null, true);
+      const allowedOrigins = [
+        // "http://localhost:8080",
+        FRONTEND
+      ];
+      if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error(`Origin ${origin} not allowed by CORS`), false);
     },
     credentials: true,
   })
 );
 
+
 app.post("/api/feedback", async (req: Request, res: Response) => {
   try {
     const {
       serviceType,
-
-      // Arrival
       meetingLocation,
       luggageNo,
       arrivalComment,
       arrivalRating,
-
-      // Departure
       protocolOfficerMeet,
       immigrationAssistance,
       meetInOrOutside,
     } = req.body;
 
-    const emailData: any = {
+    // -------------------------------
+    // Sanitize input: empty strings => undefined
+    // -------------------------------
+    const sanitizedFeedback = {
       serviceType,
-      companyName: "BTM Airport Services Feedback",
+      meetingLocation: meetingLocation || undefined,
+      luggageNo: luggageNo || undefined,
+      arrivalComment: arrivalComment || undefined,
+      arrivalRating: arrivalRating || undefined,
+      protocolOfficerMeet: protocolOfficerMeet || undefined,
+      immigrationAssistance: immigrationAssistance || undefined,
+      meetInOrOutside: meetInOrOutside || undefined,
     };
 
-    if (serviceType === "arrival") {
-      emailData.meetingLocation = meetingLocation;
-      emailData.luggageNo = luggageNo;
-      emailData.arrivalComment = arrivalComment;
-      emailData.arrivalRating = arrivalRating;
-    } else if (serviceType === "departure") {
-      emailData.protocolOfficerMeet = protocolOfficerMeet;
-      emailData.immigrationAssistance = immigrationAssistance;
-      emailData.meetInOrOutside = meetInOrOutside;
-    }
-    const emailSent = await sendEmail(
-      process.env.ADMIN_EMAIL!,
-      "New Feedback",
-      "protocol.ejs",
-      emailData
-    );
+    // -------------------------------
+    // Save feedback
+    // -------------------------------
+    const feedback = await Feedback.create(sanitizedFeedback);
 
-    if (emailSent) {
-      return res.status(200).json({
-        success: true,
-        message: "Protocol report sent successfully",
+    // Prepare email payload
+    const emailData: any = { ...feedback.toObject() };
+
+    // -------------------------------
+    // Send email with retry handling
+    // -------------------------------
+    try {
+      const emailSent = await sendEmail(
+        process.env.ADMIN_EMAIL!,
+        "New Feedback",
+        "protocol.ejs",
+        emailData
+      );
+
+      if (emailSent) {
+        return res.status(200).json({
+          success: true,
+          message: "Protocol report sent successfully",
+        });
+      } else {
+        throw new Error("Email rejected by server");
+      }
+    } catch (emailErr: any) {
+
+      // Save failed email for retry
+      await FailedEmail.create({
+        to: process.env.ADMIN_EMAIL!,
+        subject: "New Feedback Submission",
+        template: "protocol.ejs",
+        payload: emailData,
+        error: emailErr.message,
+        source: "feedback",
       });
-    } else {
+
       return res.status(500).json({
         success: false,
-        message: "Failed to send email",
+        message: "Failed to send feedback email, retry scheduled",
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     return res.status(500).json({
       success: false,
       message: "Server error",
     });
   }
 });
+
 app.post("/api/customer", async (req: Request, res: Response) => {
   try {
     const {
       passengerName,
       contact,
       email,
-      protocolOfficer,
+      btmProtocolOfficerName,
+      partnerProtocolOfficerName,
+      partnerProtocolOfficerMobile,
       badgeVerification,
       checkInIssues,
       checkInComment,
     } = req.body;
 
-    const emailData: any = {
+    // -------------------------------
+    // Save customer to DB
+    // -------------------------------
+    const customer = await Customer.create({
       passengerName,
       contact,
       email,
-      protocolOfficer,
+      btmProtocolOfficerName,
+      partnerProtocolOfficerName,
+      partnerProtocolOfficerMobile,
       badgeVerification,
       checkInIssues,
       checkInComment,
-      companyName: "Passenger Details",
+    });
+
+    const emailData = {
+      ...customer.toObject(),
+      companyName: "BTMTravel-Protocol",
     };
 
-    const emailSent = await sendEmail(
-      process.env.ADMIN_EMAIL!,
-      process.env.ADMIN_EMAIL!,
-      "customer.ejs",
-      emailData
-    );
+    // -------------------------------
+    // Send email to admin
+    // -------------------------------
+    try {
+      await sendEmail(
+        process.env.ADMIN_EMAIL!,
+        "New Customer - BTMTravel",
+        "customer-detail.ejs",
+        emailData
+      );
 
-    if (emailSent) {
       return res.status(200).json({
         success: true,
-        message: "Check-in report sent successfully",
+        message: "Customer saved and check-in report sent successfully",
+        customer,
       });
-    } else {
+    } catch (emailErr: any) {
+
+      // -------------------------------
+      // Save failed email for retry
+      // -------------------------------
+      await FailedEmail.create({
+        to: process.env.ADMIN_EMAIL!,
+        subject: "Customer Check-in Report",
+        template: "customer-detail.ejs",
+        payload: emailData,
+        error: emailErr.message,
+        source: "customer",
+      });
+
       return res.status(500).json({
-        success: false,
-        message: "Failed to send customer details",
+        success: true,
+        message:
+          "Customer saved but failed to send email. Retry scheduled.",
+        customer,
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     return res.status(500).json({
       success: false,
       message: "Server error",
@@ -159,63 +227,9 @@ app.post("/api/customer", async (req: Request, res: Response) => {
   }
 });
 
-// app.post("/api/booking", async (req: Request, res: Response) => {
-//   try {
-//     const {
-//       fullName,
-//       email,
-//       phone,
-//       services,
-//       flightDate,
-//       flightTime,
-//       flightNumber,
-//       airportTerminal,
-//       passengers,
-//       specialRequests,
-//       discountCode,
-//       referralSource,
-//     } = req.body;
 
-//     console.log("req.body", req.body);
-//     return;
-
-//     const emailSent = await sendEmail(
-//       process.env.ADMIN_EMAIL!,
-//       "New Booking Request",
-//       "booking.ejs",
-//       {
-//         fullName,
-//         email,
-//         phone,
-//         services,
-//         flightDate,
-//         flightTime,
-//         flightNumber,
-//         airportTerminal,
-//         passengers,
-//         specialRequests,
-//         discountCode,
-//         referralSource,
-//         companyName: "BTM logbook",
-//       }
-//     );
-
-//     if (emailSent) {
-//       return res
-//         .status(200)
-//         .json({ success: true, message: "Email sent successfully" });
-//     } else {
-//       return res
-//         .status(500)
-//         .json({ success: false, message: "Failed to send email" });
-//     }
-//   } catch (error) {
-//     return res.status(500).json({ success: false, message: "Server error" });
-//   }
-// });
 app.post("/api/booking", async (req: Request, res: Response) => {
   try {
-    const parsedData = JSON.parse(req.body.data);
     const {
       fullName,
       email,
@@ -232,29 +246,48 @@ app.post("/api/booking", async (req: Request, res: Response) => {
       discountCode,
       referralSource,
       totalPrice,
+      totalDollarPrice,
       currency,
       type,
-    } = parsedData;
+      returnService,
+      returnDate,
+      returnFlight,
+      returnNotes,
+    } = req.body;
+
 
     if (!email || !fullName) {
-      return res
-        .status(400)
-        .json({ error: "Customer email and name are required" });
+      return res.status(400).json({ error: "Customer email and name are required" });
     }
 
     if (!type || !["domestic", "international"].includes(type)) {
       return res.status(400).json({ error: "Invalid or missing booking type" });
     }
 
-    // 1️⃣ Initialize Paystack
-    const paystackAmount = Math.round(totalPrice * 100); // convert to kobo
-    const response = await axios.post(
+    // -------------------------------
+    // 1️⃣ Map 'tag' to 'serviceType'
+    // -------------------------------
+    const normalizedServices = (selectedServicesDetails || []).map((svc: any) => ({
+      ...svc,
+      serviceType: svc.tag || "offline",
+      tag: undefined, // optional: remove the 'tag' field
+    }));
+
+    // -------------------------------
+    // 2️⃣ Initialize Paystack payment
+    // -------------------------------
+    const amountInSmallestUnit =
+      currency === "USD"
+        ? Math.round(totalDollarPrice * 100)
+        : Math.round(totalPrice * 100);
+
+    const paystackResponse = await axios.post(
       "https://api.paystack.co/transaction/initialize",
       {
         email,
-        amount: paystackAmount,
-        currency: currency || "NGN",
-        metadata: { fullName, type }, // ✅ include type in metadata too
+        amount: amountInSmallestUnit,
+        currency,
+        metadata: { fullName, type },
         callback_url: `${process.env.BACKEND_URL}/api/payment/callback`,
       },
       {
@@ -265,16 +298,18 @@ app.post("/api/booking", async (req: Request, res: Response) => {
       }
     );
 
-    const { authorization_url, reference } = response.data.data;
+    const { authorization_url, reference } = paystackResponse.data.data;
 
-    // 2️⃣ Save payment to DB
-    await Payment.create({
+    // -------------------------------
+    // 3️⃣ Save booking to DB
+    // -------------------------------
+     await Payment.create({
       reference,
       fullName,
       email,
       phone,
       services,
-      selectedServicesDetails,
+      selectedServicesDetails: normalizedServices,
       flightDate,
       flightTime,
       flightNumber,
@@ -284,83 +319,28 @@ app.post("/api/booking", async (req: Request, res: Response) => {
       specialRequests,
       discountCode,
       referralSource,
-      totalPrice,
-      currency: currency || "NGN",
+      totalPrice: currency === "USD" ? totalDollarPrice : totalPrice,
+      totalDollarPrice: currency === "USD" ? totalDollarPrice : undefined,
+      currency,
       status: "pending",
-      type, // ✅ save type
+      type,
+      companyName: "BTMTravel-Protocol",
+      returnService,
+      returnDate,
+      returnFlight,
+      returnNotes,
     });
 
+    // -------------------------------
+    // 4️⃣ Return Paystack URL
+    // -------------------------------
     res.json({ url: authorization_url, reference });
+
   } catch (error: any) {
-    console.error("❌ Booking / Payment initiation error:", error);
     res.status(500).json({ error: "Payment initialization failed" });
   }
 });
 
-// -----------------------------
-// Payment Callback
-// -----------------------------
-app.get("/api/payment/callback", async (req: Request, res: Response) => {
-  try {
-    let reference = req.query.reference || req.query.trxref;
-    if (Array.isArray(reference)) reference = reference[0];
-    if (!reference || typeof reference !== "string") {
-      return res.redirect(`${FRONTEND_URL}/payment/failed`);
-    }
-
-    const response = await axios.get(
-      `https://api.paystack.co/transaction/verify/${reference}`,
-      {
-        headers: { Authorization: `Bearer ${PAYSTACK_SECRET_KEY}` },
-      }
-    );
-
-    const data = response.data.data;
-    const payment = await Payment.findOne({ reference });
-    if (!payment) {
-      return res.redirect(`${FRONTEND_URL}/payment/failed`);
-    }
-
-    if (data.status === "success") {
-      payment.status = "success";
-      await payment.save();
-
-      // Send admin email
-      await sendEmail(
-        process.env.ADMIN_EMAIL!,
-        "New Booking - BTM",
-        "formSubmission.ejs",
-        { payment } // now passing the Payment document directly
-      );
-
-      // Send user confirmation email
-      await sendEmail(
-        payment.email,
-        "Your Booking Confirmation - BTM",
-        "userConfirmation.ejs",
-        { payment }
-      );
-
-      return res.redirect(
-        `${FRONTEND_URL}/payment/success?reference=${reference}`
-      );
-    }
-
-    payment.status = "failed";
-    await payment.save();
-
-    return res.redirect(
-      `${FRONTEND_URL}/payment/failed?reference=${reference}`
-    );
-  } catch (error: any) {
-    console.error("❌ Payment callback error:", error);
-    return res.redirect(`${FRONTEND_URL}/payment/failed`);
-  }
-});
-
-// -----------------------------
-// Verify Payment Endpoint
-// -----------------------------
 app.get("/api/verify-payment", async (req: Request, res: Response) => {
   try {
     const { reference } = req.query;
@@ -373,6 +353,7 @@ app.get("/api/verify-payment", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Payment not found" });
     }
 
+    // ✅ Only verify if still pending
     if (payment.status === "pending") {
       const response = await axios.get(
         `https://api.paystack.co/transaction/verify/${reference}`,
@@ -384,14 +365,62 @@ app.get("/api/verify-payment", async (req: Request, res: Response) => {
       const data = response.data.data;
       payment.status = data.status === "success" ? "success" : "failed";
       await payment.save();
+
+      // ✅ If payment succeeded, send notifications
+      if (payment.status === "success") {
+
+        // Common payload for templates
+        const emailPayload = {
+          ...payment.toObject(),
+          companyName: "BTMTravel",
+        };
+
+        // 🟢 1. Admin Notification
+        try {
+          await sendEmail(
+            process.env.ADMIN_EMAIL!,
+            "New Booking - BTMTravel",
+            "booking.ejs",
+            emailPayload
+          );
+        } catch (err: any) {
+          await FailedEmail.create({
+            to: process.env.ADMIN_EMAIL!,
+            subject: "New Booking - BTMTravel",
+            template: "booking.ejs",
+            payload: emailPayload,
+            error: err.message,
+            source: "payment-verification-admin",
+          });
+        }
+
+        // 🟢 2. Customer Confirmation
+        try {
+          await sendEmail(
+            payment.email,
+            "Your Booking Confirmation - BTMTravel",
+            "confirmation.ejs",
+            emailPayload
+          );
+        } catch (err: any) {
+          await FailedEmail.create({
+            to: payment.email,
+            subject: "Your Booking Confirmation - BTMTravel",
+            template: "confirmation.ejs",
+            payload: emailPayload,
+            error: err.message,
+            source: "payment-verification-customer",
+          });
+        }
+      }
     }
 
     res.json({ success: true, payment });
   } catch (error: any) {
-    console.error("❌ Payment verification error:", error);
     res.status(500).json({ error: "Payment verification failed" });
   }
 });
+
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);

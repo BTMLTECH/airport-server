@@ -1,79 +1,3 @@
-// import { Schema, model, Document } from "mongoose";
-
-// // ============================
-// // 🧩 Interfaces
-// // ============================
-// export interface SelectedServiceDetail {
-//   id: string;
-//   label: string;
-//   price: number;
-// }
-
-// export interface PaymentDocument extends Document {
-//   fullName: string;
-//   email: string;
-//   phone: string;
-//   services: string[];
-//   flightDate: string;
-//   flightTime: string;
-//   flightNumber: string;
-//   departureCity: string;
-//   arrivalCity: string;
-//   passengers: string;
-//   specialRequests?: string;
-//   discountCode?: string;
-//   referralSource?: string;
-//   totalPrice: number;
-//   selectedServicesDetails: SelectedServiceDetail[];
-//   currency: string;
-//   status: "pending" | "success" | "failed";
-//   createdAt: Date;
-//   updatedAt: Date;
-// }
-
-// // ============================
-// // 🧩 Subschema for selected services
-// // ============================
-// const SelectedServiceDetailSchema = new Schema<SelectedServiceDetail>(
-//   {
-//     id: { type: String, required: true },
-//     label: { type: String, required: true },
-//     price: { type: Number, required: true },
-//   },
-//   { _id: false }
-// );
-
-// const PaymentSchema = new Schema<PaymentDocument>(
-//   {
-//     fullName: { type: String, required: true },
-//     email: { type: String, required: true },
-//     phone: { type: String, required: true },
-//     services: [{ type: String, required: true }],
-//     flightDate: { type: String, required: true },
-//     flightTime: { type: String, required: true },
-//     flightNumber: { type: String, required: true },
-//     departureCity: { type: String, required: true },
-//     arrivalCity: { type: String, required: true },
-//     passengers: { type: String, required: true },
-//     specialRequests: { type: String },
-//     discountCode: { type: String },
-//     referralSource: { type: String },
-//     totalPrice: { type: Number, required: true },
-//     selectedServicesDetails: {
-//       type: [SelectedServiceDetailSchema],
-//       required: true,
-//     },
-//     currency: { type: String, default: "NGN" },
-//     status: {
-//       type: String,
-//       enum: ["pending", "success", "failed"],
-//       default: "pending",
-//     },
-//   },
-//   { timestamps: true }
-// );
-
-// export const Payment = model<PaymentDocument>("Payment", PaymentSchema);
 import { Schema, model, Document } from "mongoose";
 
 // ============================
@@ -82,7 +6,11 @@ import { Schema, model, Document } from "mongoose";
 export interface SelectedServiceDetail {
   id: string;
   label: string;
-  price: number;
+  price?: number;       
+  dollar?: number;       
+  options?: any[];       
+  selectedFlight?: string;
+  serviceType?: "online" | "offline"; 
 }
 
 export interface PaymentDocument extends Document {
@@ -99,11 +27,28 @@ export interface PaymentDocument extends Document {
   specialRequests?: string;
   discountCode?: string;
   referralSource?: string;
+
+  // ✅ Pricing
   totalPrice: number;
-  selectedServicesDetails: SelectedServiceDetail[];
+  totalDollarPrice?: number;
+
+  // ✅ Selected services
+  selectedServicesDetails?: SelectedServiceDetail[];
+
   currency: string;
   status: "pending" | "success" | "failed";
-  type: "domestic" | "international"; // ✅ added here
+  type: "domestic" | "international";
+  reference: string;
+
+  // ✅ Return service
+  returnService?: boolean;
+  returnDate?: string;
+  returnFlight?: string;
+  returnNotes?: string;
+  companyName?: string;
+
+
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -115,11 +60,18 @@ const SelectedServiceDetailSchema = new Schema<SelectedServiceDetail>(
   {
     id: { type: String, required: true },
     label: { type: String, required: true },
-    price: { type: Number, required: true },
+    price: { type: Number, required: false },
+    dollar: { type: Number, required: false },
+    options: { type: Array, required: false },
+    selectedFlight: { type: String, required: false },
+    serviceType: { type: String, enum: ["online", "offline"], required: false }, // NEW
   },
   { _id: false }
 );
 
+// ============================
+// 🧩 Main Payment Schema
+// ============================
 const PaymentSchema = new Schema<PaymentDocument>(
   {
     fullName: { type: String, required: true },
@@ -135,11 +87,15 @@ const PaymentSchema = new Schema<PaymentDocument>(
     specialRequests: { type: String },
     discountCode: { type: String },
     referralSource: { type: String },
+
     totalPrice: { type: Number, required: true },
+    totalDollarPrice: { type: Number, required: false },
+    companyName: { type: String, default: "BTMTravel-Protocol" },
     selectedServicesDetails: {
       type: [SelectedServiceDetailSchema],
-      required: true,
+      required: false,
     },
+
     currency: { type: String, default: "NGN" },
     status: {
       type: String,
@@ -151,7 +107,16 @@ const PaymentSchema = new Schema<PaymentDocument>(
       enum: ["domestic", "international"],
       required: true,
     },
+    reference: { type: String, required: true, unique: true },
+
+    // ✅ Return service fields
+    returnService: { type: Boolean },
+    returnDate: { type: String },
+    returnFlight: { type: String },
+    returnNotes: { type: String },
+
   },
+  
   { timestamps: true }
 );
 
