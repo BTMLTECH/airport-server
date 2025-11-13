@@ -59,7 +59,8 @@ app.use(
       if (!origin) return callback(null, true);
       const allowedOrigins = [
         // "http://localhost:8080",
-        FRONTEND
+        FRONTEND,
+        "https://protocol.btmtravel.net",
       ];
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error(`Origin ${origin} not allowed by CORS`), false);
