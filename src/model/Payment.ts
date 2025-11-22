@@ -21,18 +21,15 @@ export interface PaymentDocument extends Document {
   flightDate: string;
   flightTime: string;
   flightNumber: string;
-  departureCity: string;
   arrivalCity: string;
   passengers: string;
   specialRequests?: string;
   discountCode?: string;
   referralSource?: string;
 
-  // ✅ Pricing
   totalPrice: number;
   totalDollarPrice?: number;
 
-  // ✅ Selected services
   selectedServicesDetails?: SelectedServiceDetail[];
 
   currency: string;
@@ -47,6 +44,11 @@ export interface PaymentDocument extends Document {
   returnNotes?: string;
   companyName?: string;
 
+  feedbackSent?: boolean;
+  feedbackSentAt?: string;
+  isFreeRequest?: boolean;
+  reminderSent?: boolean;
+  reminderSentAt?: string;
 
 
   createdAt: Date;
@@ -81,13 +83,17 @@ const PaymentSchema = new Schema<PaymentDocument>(
     flightDate: { type: String, required: true },
     flightTime: { type: String, required: true },
     flightNumber: { type: String, required: true },
-    departureCity: { type: String, required: true },
     arrivalCity: { type: String, required: true },
     passengers: { type: String, required: true },
     specialRequests: { type: String },
     discountCode: { type: String },
     referralSource: { type: String },
-
+    feedbackSent: { type: Boolean, default: false },
+    isFreeRequest: { type: Boolean, default: false },
+      reminderSent: {
+    type: Boolean,
+    default: false,   
+  },
     totalPrice: { type: Number, required: true },
     totalDollarPrice: { type: Number, required: false },
     companyName: { type: String, default: "BTMTravel-Protocol" },
@@ -109,8 +115,15 @@ const PaymentSchema = new Schema<PaymentDocument>(
     },
     reference: { type: String, required: true, unique: true },
 
-    // ✅ Return service fields
     returnService: { type: Boolean },
+    feedbackSentAt: {
+        type: String,
+        default: null
+      },
+    reminderSentAt: {
+        type: String,
+        default: null
+      },
     returnDate: { type: String },
     returnFlight: { type: String },
     returnNotes: { type: String },

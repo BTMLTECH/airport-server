@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Your Upcoming Flight - <%= companyName %></title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f8fb;
+            color: #003366;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .email-wrapper {
+            max-width: 750px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #003366;
+            color: white;
+            padding: 18px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .body {
+            padding: 20px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .section-title {
+            font-size: 16px;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #003366;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 10px;
+            border: 1px solid #d5d5d5;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #e6f0ff;
+            width: 35%;
+        }
+
+        .footer {
+            background: #e6f0ff;
+            padding: 15px;
+            text-align: center;
+            font-size: 13px;
+            margin-top: 25px;
+        }
+
+        .highlight {
+            background: #fffaf2;
+            border-left: 4px solid #ff9800;
+            padding: 10px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="email-wrapper">
+        <div class="header">
+            Flight Reminder - <%= companyName %>
+        </div>
+
+        <div class="body">
+
+            <p>Dear <strong><%= fullName %></strong>,</p>
+
+            <p>
+                This is a friendly reminder from <strong><%= companyName %></strong> 😊  
+                Your flight is scheduled to depart in <strong>approximately 6 hours</strong>.
+            </p>
+
+            <div class="highlight">
+                Please ensure you arrive at the airport early enough for smooth check-in and boarding.
+            </div>
+
+            <h3 class="section-title">Your Flight Details</h3>
+
+            <table>
+                <tr>
+                    <th>Flight Number</th>
+                    <td><%= flightNumber %></td>
+                </tr>
+                <tr>
+                    <th>Flight Date</th>
+                    <td><%= flightDate %></td>
+                </tr>
+                <tr>
+                    <th>Flight Time</th>
+                    <td><%= flightTime %></td>
+                </tr>
+                <tr>
+                    <th>Arrival/Destination</th>
+                    <td><%= arrivalCity %></td>
+                </tr>
+                <tr>
+                    <th>Passengers</th>
+                    <td><%= passengers %></td>
+                </tr>
+            </table>
+
+            <% if (selectedServicesDetails && selectedServicesDetails.length > 0) { %>
+                <h3 class="section-title">Services You Selected</h3>
+                <table>
+                    <% selectedServicesDetails.forEach(service => { %>
+                        <tr>
+                            <th><%= service.label %></th>
+                            <td>
+                                <% if (service.price) { %>
+                                    NGN <%= service.price.toLocaleString() %>
+                                <% } %>
+                                <% if (service.serviceType) { %>
+                                    <br>Type: <%= service.serviceType %>
+                                <% } %>
+                                <% if (service.selectedFlight) { %>
+                                    <br>Flight: <%= service.selectedFlight %>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </table>
+            <% } %>
+
+            <% if (specialRequests) { %>
+                <h3 class="section-title">Special Request</h3>
+                <p><%= specialRequests %></p>
+            <% } %>
+
+            <p style="margin-top:20px;">
+                If you need any help or want to make last-minute changes, feel free to contact us:
+            </p>
+
+            <p>
+                📞 <strong>+234 802 201 2700</strong><br>
+                📧 <strong>support@btmtravel.net</strong>
+            </p>
+
+            <p>We wish you a safe and pleasant journey! ✈️</p>
+        </div>
+
+        <div class="footer">
+            © <%= new Date().getFullYear() %> <%= companyName %>. All rights reserved.
+        </div>
+    </div>
+</body>
+
+</html>

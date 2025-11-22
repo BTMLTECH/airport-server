@@ -157,10 +157,7 @@
           <th>Flight Number</th>
           <td><%= flightNumber %></td>
         </tr>
-        <tr>
-          <th>Departure City</th>
-          <td><%= departureCity %></td>
-        </tr>
+        
         <tr>
           <th>Arrival City</th>
           <td><%= arrivalCity %></td>
@@ -206,8 +203,11 @@
         <tr>
           <th>Total Price</th>
           <td>
-            ₦<%= totalPrice.toLocaleString() %>
-            <% if (totalDollarPrice) { %> / $<%= totalDollarPrice.toFixed(2) %><% } %>
+            <% if (totalPrice) { %>
+              ₦<%= totalPrice.toLocaleString() %>
+            <% } else if (totalDollarPrice) { %> 
+              $<%= totalDollarPrice.toFixed(2) %>
+            <% } %>
           </td>
         </tr>
 

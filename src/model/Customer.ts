@@ -13,6 +13,8 @@ export interface CustomerDocument extends Document {
   badgeVerification?: "yes" | "no";
   checkInIssues?: "yes" | "no";
   checkInComment?: string;
+  discountCode?: string;
+  discountValidated?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +35,9 @@ const CustomerSchema = new Schema<CustomerDocument>(
     badgeVerification: { type: String, enum: ["yes", "no"], default: "no" },
     checkInIssues: { type: String, enum: ["yes", "no"], default: "no" },
     checkInComment: { type: String },
+        // 🆕 Discount Code added here
+    discountCode: { type: String, default: null },
+    discountValidated: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

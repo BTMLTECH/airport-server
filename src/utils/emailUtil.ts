@@ -1,6 +1,8 @@
+
+
 import ejs from 'ejs';
 import path from 'path';
-import sendMailToUser from './sendEmail';
+import sendMailToUser from './EmailSender';
 
 
 export const sendEmail = async (
@@ -27,3 +29,4 @@ export const sendEmail = async (
     return false;
   }
 };
+
