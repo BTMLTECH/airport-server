@@ -13,9 +13,9 @@ app.use(
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
            const allowedOrigins = [
-        "http://localhost:8080",
+        // "http://localhost:8080",
         // FRONTEND,
-        // "https://protocol.btmtravel.net",
+        "https://protocol.btmtravel.net",
       ];
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error(`Origin ${origin} not allowed by CORS`), false);

@@ -6,11 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendEmail = void 0;
 const ejs_1 = __importDefault(require("ejs"));
 const path_1 = __importDefault(require("path"));
-const sendEmail_1 = require("./sendEmail");
+const EmailSender_1 = __importDefault(require("./EmailSender"));
 const sendEmail = async (email, subject, template, data) => {
     try {
         await ejs_1.default.renderFile(path_1.default.join(__dirname, `../mail/${template}`), data);
-        const emailResponse = await (0, sendEmail_1.sendMailToUser)({
+        const emailResponse = await (0, EmailSender_1.default)({
             email,
             subject,
             template,
