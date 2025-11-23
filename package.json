@@ -2,12 +2,12 @@
   "name": "server",
   "version": "1.0.0",
   "main": "index.js",
-"scripts": {
-  "dev": "ts-node src/server.ts",
-  "clean": "rimraf dist",
-  "build": "npm run clean && tsc && copyfiles -u 1 \"src/mail/**/*\" dist/mail",
-  "start": "node dist/server.js"
-},
+  "scripts": {
+    "dev": "ts-node src/server.ts",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc && cp -r src/mail dist/mail",
+    "start": "node dist/server.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
