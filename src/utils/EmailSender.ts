@@ -17,9 +17,9 @@ export const sendMailToUser = async (
 ): Promise<{ accepted: string[]; rejected: string[] }> => {
   const transporter: Transporter = nodemailer.createTransport({
     host: process.env.SMPT_HOST,
-    port: parseInt(process.env.SMPT_PORT || '587'),
+    port: parseInt(process.env.SMPT_PORT || '465'),
     // port: parseInt(process.env.SMPT_PORT || '465'),
-    secure: false,
+    secure: true,
     // secure: process.env.SMPT_PORT === '465',
     // service: process.env.SMPT_SERVICE,
     auth: {

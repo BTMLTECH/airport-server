@@ -37,6 +37,7 @@ export const customerFeedback = async (req: Request, res: Response) => {
 
     // Prepare email payload
     const emailData: any = { ...feedback.toObject() };
+    console.log("Feedback Data:", process.env.ADMIN_EMAIL);
 
     // -------------------------------
     // Send email with retry handling
