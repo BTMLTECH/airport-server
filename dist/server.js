@@ -29,8 +29,10 @@ app.use(body_parser_1.default.json());
 // CORS (production strict)
 // -------------------------------
 const allowedOrigins = [
-    "https://protocol.btmtravel.net", // production frontend
-    // "http://localhost:8080", // local frontend
+    "https://protocol.btmtravel.net",
+    "http://51.75.154.196:8080",
+    "http://51.75.154.196",
+    // "http://localhost:8080"
 ];
 app.use((0, cors_1.default)({
     origin: (origin, callback) => {

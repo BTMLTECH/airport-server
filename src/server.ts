@@ -32,7 +32,8 @@ app.use(bodyParser.json());
 const allowedOrigins = [
   "https://protocol.btmtravel.net",
   "http://51.75.154.196:8080",
-  "http://51.75.154.196"
+  "http://51.75.154.196",
+  // "http://localhost:8080"
 ];
 
 
