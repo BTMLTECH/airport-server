@@ -36,7 +36,7 @@ const allowedOrigins = [
   "http://protocol.btmtravel.net",
   "http://51.75.154.196:8080",
   "http://51.75.154.196",
-  "http://localhost:8080"
+  // "http://localhost:8080"
 ];
 
 
