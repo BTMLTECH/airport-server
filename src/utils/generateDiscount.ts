@@ -1,7 +1,13 @@
-export function generateDiscountCode() {
+// export function generateDiscountCode() {
+//   const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+//   return `BBG-${random}`;
+// }
+
+export function generateDiscountCode(group: string) {
   const random = Math.random().toString(36).substring(2, 8).toUpperCase();
-  return `BBG-${random}`;
+  return `${group}-${random}`;
 }
+
 
 export function convertTo12HourFormat(time24:any) {
   const [hours, minutes] = time24.split(":");

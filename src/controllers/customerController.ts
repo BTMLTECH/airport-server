@@ -42,7 +42,7 @@ export const createDetail = async (req: Request, res: Response) => {
     // -------------------------------
     try {
       const emailSent = await sendEmail(
-        process.env.ADMIN_EMAIL!,
+        process.env.CUSTOMER_DETAIL_EMAIL!,
         "New Customer - BTMTravel",
         "customer-detail.ejs",
         emailData
@@ -61,7 +61,7 @@ export const createDetail = async (req: Request, res: Response) => {
 
       // Save failed email for retry
       await FailedEmail.create({
-        to: process.env.ADMIN_EMAIL!,
+        to: process.env.CUSTOMER_DETAIL_EMAIL!,
         subject: "Customer Check-in Report",
         template: "customer-detail.ejs",
         payload: emailData,

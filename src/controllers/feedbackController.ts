@@ -14,8 +14,9 @@ export const customerFeedback = async (req: Request, res: Response) => {
       protocolOfficerMeet,
       immigrationAssistance,
       meetInOrOutside,
+      departureComment,
+      departureRating,
     } = req.body;
-
     // -------------------------------
     // Sanitize input: empty strings => undefined
     // -------------------------------
@@ -26,10 +27,14 @@ export const customerFeedback = async (req: Request, res: Response) => {
       arrivalComment: arrivalComment || undefined,
       arrivalRating: arrivalRating || undefined,
       protocolOfficerMeet: protocolOfficerMeet || undefined,
+      departureComment: departureComment || undefined,
+      departureRating: departureRating || undefined,
       immigrationAssistance: immigrationAssistance || undefined,
       meetInOrOutside: meetInOrOutside || undefined,
     };
+   
 
+    
     // -------------------------------
     // Save feedback
     // -------------------------------
@@ -37,14 +42,13 @@ export const customerFeedback = async (req: Request, res: Response) => {
 
     // Prepare email payload
     const emailData: any = { ...feedback.toObject() };
-    console.log("Feedback Data:", process.env.ADMIN_EMAIL);
 
     // -------------------------------
     // Send email with retry handling
     // -------------------------------
     try {
       const emailSent = await sendEmail(
-        process.env.ADMIN_EMAIL!,
+        process.env.HR_EMAIL!,
         "New Feedback",
         "protocol.ejs",
         emailData
@@ -62,7 +66,7 @@ export const customerFeedback = async (req: Request, res: Response) => {
 
       // Save failed email for retry
       await FailedEmail.create({
-        to: process.env.ADMIN_EMAIL!,
+        to: process.env.HR_EMAIL!,
         subject: "New Feedback Submission",
         template: "protocol.ejs",
         payload: emailData,

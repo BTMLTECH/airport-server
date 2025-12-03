@@ -39,6 +39,9 @@ export const bookingController = async (req: Request, res: Response) => {
       returnNotes,
     } = req.body;
 
+
+
+  
     const formattedFlightTime = convertTo12HourFormat(flightTime);
     if (!email || !fullName) {
       return res.status(400).json({ error: "Customer email and name are required" });
@@ -49,11 +52,36 @@ export const bookingController = async (req: Request, res: Response) => {
     }
 
     // Normalize selected services
-    const normalizedServices = (selectedServicesDetails || []).map((svc: any) => ({
-      ...svc,
-      serviceType: svc.tag || "offline",
-      tag: undefined,
-    }));
+    // const normalizedServices = (selectedServicesDetails || []).map((svc: any) => ({
+    //   ...svc,
+    //   serviceType: svc.tag || "offline",
+    //   tag: undefined,
+    // }));
+
+    const normalizedServices = (selectedServicesDetails || []).map((svc: any) => {
+      const normalizedOptions = svc.options?.map((opt: any) => ({
+        type: opt.type,
+        priceRange: opt.priceRange,
+        priceRangeUSD: opt.priceRangeUSD, 
+      }));
+
+      return {
+        ...svc,
+        serviceType: svc.tag || "offline",
+        tag: undefined,
+        options: normalizedOptions,
+      };
+    });
+
+    let storedTotalPrice = 0;
+    let storedTotalDollarPrice = 0;
+
+    if (currency === "USD") {
+      storedTotalDollarPrice = totalDollarPrice;
+    } else {
+      storedTotalPrice = totalPrice;
+    }
+
 
   if (type === "international") {
      const payment = await Payment.create({
@@ -72,8 +100,8 @@ export const bookingController = async (req: Request, res: Response) => {
         specialRequests,
         discountCode,
         referralSource,
-        totalPrice: 0, 
-        totalDollarPrice: 0,  
+        totalPrice: storedTotalPrice, 
+        totalDollarPrice: storedTotalDollarPrice,  
         currency,
         status: "pending", 
         type,
@@ -94,12 +122,15 @@ export const bookingController = async (req: Request, res: Response) => {
         // Prepare promises for both emails
         const emailPromises = [
           // 🟢 1. Admin Notification
-          sendEmail(process.env.ADMIN_EMAIL!, "New Booking - BTMTravel", "booking.ejs", emailPayload)
-            .then(() => {
+          sendEmail(process.env.SOURCING_EMAIL!, "New Booking - BTMTravel", "booking.ejs", emailPayload)
+            .then(async() => {
+               if (process.env.AIRPORT_EMAIL!) {
+                await sendEmail(process.env.AIRPORT_EMAIL, "New Booking - BTMTravel", "booking.ejs", emailPayload);
+              }
             })
             .catch((err: any) => {
               return FailedEmail.create({
-                to: process.env.ADMIN_EMAIL!,
+                to: process.env.SOURCING_EMAIL!,
                 subject: "New Booking - BTMTravel",
                 template: "booking.ejs",
                 payload: emailPayload,
@@ -247,6 +278,8 @@ export const verifyPayment = async (req: Request, res: Response) => {
           );
         }
 
+
+
         // Common payload for templates
         const emailPayload = {
           ...payment.toObject(),
@@ -257,12 +290,15 @@ export const verifyPayment = async (req: Request, res: Response) => {
         // Prepare promises for both emails
         const emailPromises = [
           // 🟢 1. Admin Notification
-          sendEmail(process.env.ADMIN_EMAIL!, "New Booking - BTMTravel", "booking.ejs", emailPayload)
-            .then(() => {
-            })
+          sendEmail(process.env.SOURCING_EMAIL!, "New Booking - BTMTravel", "booking.ejs", emailPayload)
+          .then(async() => {
+                      if (process.env.AIRPORT_EMAIL!) {
+                        await sendEmail(process.env.AIRPORT_EMAIL, "New Booking - BTMTravel", "booking.ejs", emailPayload);
+                      }
+                    })
             .catch((err: any) => {
               return FailedEmail.create({
-                to: process.env.ADMIN_EMAIL!,
+                to: process.env.SOURCING_EMAIL!,
                 subject: "New Booking - BTMTravel",
                 template: "booking.ejs",
                 payload: emailPayload,

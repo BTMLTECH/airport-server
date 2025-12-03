@@ -11,6 +11,8 @@ export interface FeedbackDocument extends Document {
   luggageNo?: string;
   arrivalComment?: string;
   arrivalRating?: string;
+  departureComment?: string;
+  departureRating?: string;
 
   // Departure fields
   protocolOfficerMeet?: "yes" | "no";
@@ -40,6 +42,8 @@ const FeedbackSchema = new Schema<FeedbackDocument>(
     protocolOfficerMeet: { type: String, enum: ["yes", "no"], default: undefined },
     immigrationAssistance: { type: String, enum: ["yes", "no"], default: undefined },
     meetInOrOutside: { type: String, enum: ["inside", "outside"], default: undefined },
+    departureComment: { type: String, default: undefined },
+    departureRating: { type: String, default: undefined },
 
     companyName: { type: String, default: "BTM Airport Services Feedback" },
   },

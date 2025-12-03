@@ -2,28 +2,57 @@ import { Request, Response } from "express";
 import { generateDiscountCode } from "../utils/generateDiscount";
 import { Discount } from "../model/Discount";
 
-export const createDiscount = async (req: Request, res: Response) => {
- const { discountType, amount, expiresAt, isOneTime } = req.body;
+// export const createDiscount = async (req: Request, res: Response) => {
+//  const { discountType, amount, expiresAt, isOneTime } = req.body;
 
-  if (!discountType || !amount) {
-    return res.status(400).json({ success: false, message: "Discount type and amount are required" });
+//   if (!discountType || !amount) {
+//     return res.status(400).json({ success: false, message: "Discount type and amount are required" });
+//   }
+
+//   try {
+//     const code = generateDiscountCode(); 
+//     const discount = await Discount.create({
+//       code,
+//       discountType,
+//       amount,
+//       expiresAt: expiresAt ? new Date(expiresAt) : null,
+//       isOneTime,
+//     });
+
+//     res.status(201).json({ success: true, data: discount });
+//   } catch (err: any) {
+//     res.status(500).json({ success: false, message: err || "Server error" });
+//   }
+// };
+export const createDiscount = async (req: Request, res: Response) => {
+  const { membership, discountType, amount, expiresAt, isOneTime } = req.body;
+
+  if (!membership) {
+    return res.status(400).json({ success: false, message: "Membership group is required" });
+  }
+
+  if (!["BBG", "NBCC"].includes(membership)) {
+    return res.status(400).json({ success: false, message: "Invalid membership group" });
   }
 
   try {
-    const code = generateDiscountCode(); 
+    const code = generateDiscountCode(membership);
+
     const discount = await Discount.create({
       code,
       discountType,
-      amount,
+      percentage: amount,
       expiresAt: expiresAt ? new Date(expiresAt) : null,
-      isOneTime,
+      maxUsage: isOneTime ? 1 : 1000,
     });
 
     res.status(201).json({ success: true, data: discount });
   } catch (err: any) {
-    res.status(500).json({ success: false, message: err || "Server error" });
+    res.status(500).json({ success: false, message: err.message || "Server error" });
   }
 };
+
+
 export const verifyDiscount = async (req: Request, res: Response) => {
  try {
     const { code } = req.body;

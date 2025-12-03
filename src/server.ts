@@ -3,7 +3,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-// import "./cron/cronWorker";
+import "./cron/cronWorker";
 
 // Routes
 import adminRoutes from "./routes/adminRoutes";
@@ -36,7 +36,7 @@ const allowedOrigins = [
   "http://protocol.btmtravel.net",
   "http://51.75.154.196:8080",
   "http://51.75.154.196",
-  // "http://localhost:8080"
+  "http://localhost:8080"
 ];
 
 
@@ -58,8 +58,7 @@ const MONGO_URI = process.env.MONGO_URI!;
 mongoose
   .connect(MONGO_URI)
   .then(() => console.log("✅ Connected to MongoDB"))
-  .catch((err) => {
-    console.error("❌ MongoDB connection error:", err);
+  .catch(() => {
     process.exit(1);
   });
 

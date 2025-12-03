@@ -116,21 +116,20 @@
           <tr>
             <th>Services Booked</th>
             <td>
-              <!-- Online Services -->
               <% const onlineServices = selectedServicesDetails.filter(s => s.serviceType === 'online'); %>
               <% if (onlineServices.length) { %>
                 <strong>Online Services Paid For:</strong>
                 <ul class="service-list">
                   <% onlineServices.forEach(service => { %>
                     <li>
-                      <%= service.label %> - ₦<%= service.price?.toLocaleString() %>
+                      <%= service.label %> - 
+                      <%= currency === 'NGN' ? `₦${service.price?.toLocaleString()}` : `$${service.dollar?.toFixed(2)}` %>
                       <% if (service.selectedFlight) { %> (Flight: <%= service.selectedFlight %>) <% } %>
                     </li>
                   <% }) %>
                 </ul>
               <% } %>
 
-              <!-- Offline Services -->
               <% const offlineServices = selectedServicesDetails.filter(s => s.serviceType === 'offline'); %>
               <% if (offlineServices.length) { %>
                 <strong>Offline Services to be arranged:</strong>
@@ -138,11 +137,13 @@
                   <% offlineServices.forEach(service => { %>
                     <li>
                       <%= service.label %>
-                      <% if (service.price) { %> - ₦<%= service.price.toLocaleString() %><% } %>
                       <% if (service.options?.length) { %>
                         <ul class="sub-service-list">
                           <% service.options.forEach(option => { %>
-                            <li><%= option.type %> - <%= option.priceRange %></li>
+                            <li>
+                              <%= option.type %> - 
+                              <%= currency === 'NGN' ? option.priceRange : option.priceRangeUSD %>
+                            </li>
                           <% }) %>
                         </ul>
                       <% } %>
@@ -173,14 +174,10 @@
           </tr>
         <% } %>
 
-          <tr>
+        <tr>
           <th>Total Price</th>
           <td>
-            <% if (totalPrice) { %>
-              ₦<%= totalPrice.toLocaleString() %>
-            <% } else if (totalDollarPrice) { %> 
-              $<%= totalDollarPrice.toFixed(2) %>
-            <% } %>
+            <%= currency === 'NGN' ? `₦${totalPrice.toLocaleString()}` : `$${totalDollarPrice.toFixed(2)}` %>
           </td>
         </tr>
       </table>

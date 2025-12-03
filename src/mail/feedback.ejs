@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title><%= companyName %> - Feedback Request</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f8fb;
+            color: #003366;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .email-wrapper {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .email-header {
+            background-color: #003366;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .email-body {
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 15px;
+            background-color: #003366;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .email-footer {
+            background-color: #e0f0ff;
+            padding: 15px;
+            text-align: center;
+            font-size: 13px;
+            color: #003366;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-wrapper">
+        <div class="email-header">
+            Feedback Request - <%= companyName %>
+        </div>
+        <div class="email-body">
+            <p>Hi <strong><%= fullName %></strong>,</p>
+
+            <p>We hope you enjoyed our services. We would greatly appreciate your feedback on your recent booking with us.</p>
+
+            <p><strong>Booking Details:</strong></p>
+            <ul>
+                <li>Name: <%= fullName %></li>
+                <li>Email: <%= email %></li>
+                <li>Phone: <%= phone %></li>
+            </ul>
+
+            <p>Please click the button below to provide your feedback:</p>
+            <a href="https://protocol.btmtravel.net/feedback" class="btn" target="_blank">Give Feedback</a>
+        </div>
+        <div class="email-footer">
+            © <%= new Date().getFullYear() %> <%= companyName %>. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>
