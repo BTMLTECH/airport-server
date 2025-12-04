@@ -41,6 +41,7 @@ export const bookingController = async (req: Request, res: Response) => {
 
 
 
+
   
     const formattedFlightTime = convertTo12HourFormat(flightTime);
     if (!email || !fullName) {
@@ -82,86 +83,89 @@ export const bookingController = async (req: Request, res: Response) => {
       storedTotalPrice = totalPrice;
     }
 
+    const isFreeBooking =
+      (type === "international") ||
+      (type === "domestic" && (storedTotalPrice === 0 || storedTotalDollarPrice === 0));
 
-  if (type === "international") {
-     const payment = await Payment.create({
-        reference: `FREE-${Date.now()}`,
-        isFreeRequest: true,
-        fullName,
-        email,
-        phone,
-        services,
-        selectedServicesDetails: normalizedServices,
-        flightDate,
-        flightTime,
-        flightNumber,
-        arrivalCity,
-        passengers,
-        specialRequests,
-        discountCode,
-        referralSource,
-        totalPrice: storedTotalPrice, 
-        totalDollarPrice: storedTotalDollarPrice,  
-        currency,
-        status: "pending", 
-        type,
-        companyName: "BTMTravel-Protocol",
-        returnService,
-        returnDate,
-        returnFlight,
-        returnNotes,
-      });
+    if (isFreeBooking) {
+        const payment = await Payment.create({
+            reference: `FREE-${Date.now()}`,
+            isFreeRequest: true,
+            fullName,
+            email,
+            phone,
+            services,
+            selectedServicesDetails: normalizedServices,
+            flightDate,
+            flightTime,
+            flightNumber,
+            arrivalCity,
+            passengers,
+            specialRequests,
+            discountCode,
+            referralSource,
+            totalPrice: storedTotalPrice, 
+            totalDollarPrice: storedTotalDollarPrice,  
+            currency,
+            status: "pending", 
+            type,
+            companyName: "BTMTravel-Protocol",
+            returnService,
+            returnDate,
+            returnFlight,
+            returnNotes,
+          });
 
-          
-        const emailPayload = {
-          ...payment.toObject(),
-          flightTime:formattedFlightTime,
-          companyName: "BTMTravel",
-        };
+              
+            const emailPayload = {
+              ...payment.toObject(),
+              flightTime:formattedFlightTime,
+              companyName: "BTMTravel",
+            };
 
-        // Prepare promises for both emails
-        const emailPromises = [
-          // 🟢 1. Admin Notification
-          sendEmail(process.env.SOURCING_EMAIL!, "New Booking - BTMTravel", "booking.ejs", emailPayload)
-            .then(async() => {
-               if (process.env.AIRPORT_EMAIL!) {
-                await sendEmail(process.env.AIRPORT_EMAIL, "New Booking - BTMTravel", "booking.ejs", emailPayload);
-              }
-            })
-            .catch((err: any) => {
-              return FailedEmail.create({
-                to: process.env.SOURCING_EMAIL!,
-                subject: "New Booking - BTMTravel",
-                template: "booking.ejs",
-                payload: emailPayload,
-                error: err.message,
-                source: "payment-verification-admin",
-              });
-            }),
+            // Prepare promises for both emails
+            const emailPromises = [
+              // 🟢 1. Admin Notification
+              sendEmail(process.env.SOURCING_EMAIL!, "New Booking - BTMTravel", "booking.ejs", emailPayload)
+                .then(async() => {
+                  if (process.env.AIRPORT_EMAIL!) {
+                    await sendEmail(process.env.AIRPORT_EMAIL, "New Booking - BTMTravel", "booking.ejs", emailPayload);
+                  }
+                })
+                .catch((err: any) => {
+                  return FailedEmail.create({
+                    to: process.env.SOURCING_EMAIL!,
+                    subject: "New Booking - BTMTravel",
+                    template: "booking.ejs",
+                    payload: emailPayload,
+                    error: err.message,
+                    source: "payment-verification-admin",
+                  });
+                }),
 
-          // 🟢 2. Customer Confirmation
-          sendEmail(payment.email, "Your Booking Confirmation - BTMTravel", "confirmation.ejs", emailPayload)
-            .then(() => {
-            })
-            .catch((err: any) => {
-              return FailedEmail.create({
-                to: payment.email,
-                subject: "Your Booking Confirmation - BTMTravel",
-                template: "confirmation.ejs",
-                payload: emailPayload,
-                error: err.message,
-                source: "payment-verification-customer",
-              });
-            }),
-        ];
+              // 🟢 2. Customer Confirmation
+              sendEmail(payment.email, "Your Booking Confirmation - BTMTravel", "confirmation.ejs", emailPayload)
+                .then(() => {
+                })
+                .catch((err: any) => {
+                  return FailedEmail.create({
+                    to: payment.email,
+                    subject: "Your Booking Confirmation - BTMTravel",
+                    template: "confirmation.ejs",
+                    payload: emailPayload,
+                    error: err.message,
+                    source: "payment-verification-customer",
+                  });
+                }),
+            ];
 
-      await Promise.all(emailPromises);
-    
-      return res.json({
-        totalPrice: 0, 
-        totalDollarPrice: 0,  
-      });
-    }
+          await Promise.all(emailPromises);
+        
+          return res.json({
+            totalPrice: 0, 
+            totalDollarPrice: 0,  
+          });
+        }
 
     // ===========================================================
     // PAID BOOKING FLOW (Paystack)
