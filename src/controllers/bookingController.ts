@@ -40,7 +40,7 @@ export const bookingController = async (req: Request, res: Response) => {
     } = req.body;
 
 
-
+console.log("req.body", req.body)
 
   
     const formattedFlightTime = convertTo12HourFormat(flightTime);
@@ -51,13 +51,6 @@ export const bookingController = async (req: Request, res: Response) => {
     if (!type || !["domestic", "international"].includes(type)) {
       return res.status(400).json({ error: "Invalid or missing booking type" });
     }
-
-    // Normalize selected services
-    // const normalizedServices = (selectedServicesDetails || []).map((svc: any) => ({
-    //   ...svc,
-    //   serviceType: svc.tag || "offline",
-    //   tag: undefined,
-    // }));
 
     const normalizedServices = (selectedServicesDetails || []).map((svc: any) => {
       const normalizedOptions = svc.options?.map((opt: any) => ({
@@ -83,9 +76,19 @@ export const bookingController = async (req: Request, res: Response) => {
       storedTotalPrice = totalPrice;
     }
 
-    const isFreeBooking =
-      (type === "international") ||
-      (type === "domestic" && (storedTotalPrice === 0 || storedTotalDollarPrice === 0));
+
+
+ const isFreeBooking =
+  type === "international" ||
+  (type === "domestic" &&
+    Number(storedTotalPrice) === 0 &&
+    Number(storedTotalDollarPrice) === 0);
+
+
+console.log("isFree", isFreeBooking)
+    console.log("storedTotalPrice", storedTotalPrice)
+    console.log("storedTotalPrice", storedTotalPrice)
+
 
     if (isFreeBooking) {
         const payment = await Payment.create({
