@@ -40,7 +40,6 @@ export const bookingController = async (req: Request, res: Response) => {
     } = req.body;
 
 
-console.log("req.body", req.body)
 
   
     const formattedFlightTime = convertTo12HourFormat(flightTime);
@@ -85,11 +84,6 @@ console.log("req.body", req.body)
     Number(storedTotalDollarPrice) === 0);
 
 
-console.log("isFree", isFreeBooking)
-    console.log("storedTotalPrice", storedTotalPrice)
-    console.log("storedTotalPrice", storedTotalPrice)
-
-
     if (isFreeBooking) {
         const payment = await Payment.create({
             reference: `FREE-${Date.now()}`,
@@ -124,6 +118,7 @@ console.log("isFree", isFreeBooking)
               ...payment.toObject(),
               flightTime:formattedFlightTime,
               companyName: "BTMTravel",
+              logo: "https://res.cloudinary.com/dhbmufbz8/image/upload/w_80/v1765442901/mmmowztxjy92h800rbra.png"
             };
 
             // Prepare promises for both emails
@@ -292,12 +287,13 @@ export const verifyPayment = async (req: Request, res: Response) => {
           ...payment.toObject(),
           flightTime: formattedFlightTime,
           companyName: "BTMTravel",
+          logo: "https://res.cloudinary.com/dhbmufbz8/image/upload/w_80/v1765442901/mmmowztxjy92h800rbra.png"
         };
 
         // Prepare promises for both emails
         const emailPromises = [
           // 🟢 1. Admin Notification
-          sendEmail(process.env.SOURCING_EMAIL!, "New Booking - BTMTravel", "booking.ejs", emailPayload)
+          sendEmail(process.env.SOURCING_EMAIL!, "New Booking - BTMTravel", "booking.ejs", emailPayload, )
           .then(async() => {
                       if (process.env.AIRPORT_EMAIL!) {
                         await sendEmail(process.env.AIRPORT_EMAIL, "New Booking - BTMTravel", "booking.ejs", emailPayload);

@@ -41,7 +41,11 @@ export const customerFeedback = async (req: Request, res: Response) => {
     const feedback = await Feedback.create(sanitizedFeedback);
 
     // Prepare email payload
-    const emailData: any = { ...feedback.toObject() };
+    const emailData: any = { ...feedback.toObject(),
+     companyName: "BTMTravel-Protocol", 
+     logo: "https://res.cloudinary.com/dhbmufbz8/image/upload/w_80/v1765442901/mmmowztxjy92h800rbra.png"
+
+    };
 
     // -------------------------------
     // Send email with retry handling

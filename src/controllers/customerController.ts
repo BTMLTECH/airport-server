@@ -35,7 +35,11 @@ export const createDetail = async (req: Request, res: Response) => {
     });
 
     // Prepare email payload
-    const emailData: any = { ...customer.toObject(), companyName: "BTMTravel-Protocol" };
+    const emailData: any = { ...customer.toObject(),
+       companyName: "BTMTravel-Protocol", 
+       logo: "https://res.cloudinary.com/dhbmufbz8/image/upload/w_80/v1765442901/mmmowztxjy92h800rbra.png"
+
+     };
 
     // -------------------------------
     // Send email with retry handling
@@ -45,7 +49,8 @@ export const createDetail = async (req: Request, res: Response) => {
         process.env.CUSTOMER_DETAIL_EMAIL!,
         "New Customer - BTMTravel",
         "customer-detail.ejs",
-        emailData
+        emailData,
+        
       );
 
       if (emailSent) {

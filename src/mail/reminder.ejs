@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
+<!-- <head>
     <meta charset="UTF-8" />
     <title>Your Upcoming Flight - <%= companyName %></title>
 
@@ -80,11 +80,116 @@
             margin-top: 15px;
         }
     </style>
+</head> -->
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Your Upcoming Flight - <%= companyName %></title>
+
+   <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f8fb; /* original light bluish-grey */
+        color: #003366;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .email-wrapper {
+        max-width: 750px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 8px;
+        border: 1px solid #ffd580; /* warm border matching header */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    /* Logo */
+    .logo-container {
+        text-align: center;
+        padding: 20px;
+        background-color: #fff7e6; /* warm light background */
+        border-bottom: 1px solid #ffd580;
+    }
+
+    .logo-container img {
+        max-width: 80px;
+        height: auto;
+    }
+
+    .header {
+        background: #ffa30f; /* orange header */
+        color: white;
+        padding: 18px;
+        text-align: center;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .body {
+        padding: 20px;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .section-title {
+        font-size: 16px;
+        margin-top: 20px;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #003366;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 5px;
+    }
+
+    th,
+    td {
+        text-align: left;
+        padding: 10px;
+        border: 1px solid #d5d5d5;
+        font-size: 14px;
+    }
+
+    th {
+        background-color: #fff7e6; /* light warm table header */
+        width: 35%;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .footer {
+        background: #fff7e6;
+        padding: 15px;
+        text-align: center;
+        font-size: 13px;
+        margin-top: 25px;
+        border-top: 1px solid #ffd580;
+    }
+
+    .highlight {
+        background: #fffaf2;
+        border-left: 4px solid #ffa30f;
+        padding: 10px;
+        margin-top: 15px;
+    }
+</style>
+
 </head>
 
 <body>
 
     <div class="email-wrapper">
+                                            <!-- LOGO -->
+        <div class="logo-container">
+        <img src="<%= logo %>" alt="<%= companyName %> Logo" />
+        </div>
         <div class="header">
             Flight Reminder - <%= companyName %>
         </div>
