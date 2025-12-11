@@ -274,10 +274,23 @@ export const verifyPayment = async (req: Request, res: Response) => {
 
         // 1️⃣ Deactivate discount code if applied
         if (payment.discountCode) {
-          await Discount.findOneAndUpdate(
-            { code: payment.discountCode },
-            { isActive: false }
-          );
+          // await Discount.findOneAndUpdate(
+          //   { code: payment.discountCode },
+          //   { isActive: false }
+          // );
+          const discount = await Discount.findOne({ code: payment.discountCode });
+
+          if (discount) {
+            // Increase usage count
+            discount.usedCount += 1;
+
+            // Disable ONLY if it has maxUsage (one-time)
+            if (discount.maxUsage !== null && discount.usedCount >= discount.maxUsage) {
+              discount.isActive = false;
+            }
+
+            await discount.save();
+          }
         }
 
 

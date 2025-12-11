@@ -43,7 +43,7 @@ export const createDiscount = async (req: Request, res: Response) => {
       discountType,
       percentage: amount,
       expiresAt: expiresAt ? new Date(expiresAt) : null,
-      maxUsage: isOneTime ? 1 : 1000,
+      maxUsage: isOneTime ? 1 : null,
     });
 
     res.status(201).json({ success: true, data: discount });
@@ -89,13 +89,13 @@ export const verifyDiscount = async (req: Request, res: Response) => {
       });
     }
 
-    // Check usage limit
-    if (discount.usedCount >= discount.maxUsage) {
+    if (discount.maxUsage !== null && discount.usedCount >= discount.maxUsage) {
       return res.status(400).json({
         success: false,
         message: "This discount code has already been used",
       });
     }
+
 
     // Return only what frontend needs
     return res.json({
