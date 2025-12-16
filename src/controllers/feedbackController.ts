@@ -17,6 +17,7 @@ export const customerFeedback = async (req: Request, res: Response) => {
       departureComment,
       departureRating,
     } = req.body;
+    console.log("res", req.body)
     // -------------------------------
     // Sanitize input: empty strings => undefined
     // -------------------------------
@@ -41,11 +42,26 @@ export const customerFeedback = async (req: Request, res: Response) => {
     const feedback = await Feedback.create(sanitizedFeedback);
 
     // Prepare email payload
-    const emailData: any = { ...feedback.toObject(),
-     companyName: "BTMTravel-Protocol", 
-     logo: "https://res.cloudinary.com/dhbmufbz8/image/upload/w_80/v1765442901/mmmowztxjy92h800rbra.png"
+    // const emailData: any = { ...feedback.toObject(),
+    //  companyName: "BTMTravel-Protocol", 
+    //  logo: "https://res.cloudinary.com/dhbmufbz8/image/upload/w_80/v1765442901/mmmowztxjy92h800rbra.png"
 
-    };
+    // };
+    // Prepare email payload safely
+const emailData: any = { 
+  ...feedback.toObject(),
+  companyName: "BTMTravel-Protocol", 
+  logo: "https://res.cloudinary.com/dhbmufbz8/image/upload/w_80/v1765442901/mmmowztxjy92h800rbra.png",
+  arrivalComment: feedback.arrivalComment || "",
+  departureComment: feedback.departureComment || "",
+  arrivalRating: feedback.arrivalRating || "",
+  departureRating: feedback.departureRating || "",
+  meetingLocation: feedback.meetingLocation || "",
+  protocolOfficerMeet: feedback.protocolOfficerMeet || "",
+  immigrationAssistance: feedback.immigrationAssistance || "",
+  meetInOrOutside: feedback.meetInOrOutside || ""
+};
+
 
     // -------------------------------
     // Send email with retry handling
