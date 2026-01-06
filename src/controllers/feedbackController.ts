@@ -112,7 +112,6 @@ export const customerFeedback = async (req: Request, res: Response) => {
       departureRating,
     } = req.body;
 
-    console.log("Received feedback:", req.body);
 
     const sanitizedFeedback = {
       fullName: fullName || undefined,
