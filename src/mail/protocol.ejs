@@ -95,6 +95,16 @@
 
     <div class="email-body">
       <table>
+                <!-- Passenger Details -->
+        <tr>
+          <th>Full Name</th>
+          <td><%= fullName || "N/A" %></td>
+        </tr>
+        <tr>
+          <th>Airline Name</th>
+          <td><%= airlineName || "N/A" %></td>
+        </tr>
+
         <tr>
           <th>Service Type</th>
           <td><%= serviceType || "N/A" %></td>

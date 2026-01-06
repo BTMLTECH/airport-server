@@ -98,6 +98,8 @@ import { sendEmail } from "../utils/emailUtil";
 export const customerFeedback = async (req: Request, res: Response) => {
   try {
     const {
+      fullName,
+      airlineName,
       serviceType,
       meetingLocation,
       luggageNo,
@@ -110,7 +112,11 @@ export const customerFeedback = async (req: Request, res: Response) => {
       departureRating,
     } = req.body;
 
+    console.log("Received feedback:", req.body);
+
     const sanitizedFeedback = {
+      fullName: fullName || undefined,
+      airlineName: airlineName || undefined,
       serviceType,
       meetingLocation: meetingLocation || undefined,
       luggageNo: luggageNo || undefined,
@@ -129,6 +135,8 @@ export const customerFeedback = async (req: Request, res: Response) => {
       ...feedback.toObject(),
       companyName: "BTMTravel-Protocol", 
       logo: "https://res.cloudinary.com/dhbmufbz8/image/upload/w_80/v1765442901/mmmowztxjy92h800rbra.png",
+      fullName: feedback.fullName || "",
+      airlineName: feedback.airlineName || "",
       arrivalComment: feedback.arrivalComment || "",
       departureComment: feedback.departureComment || "",
       arrivalRating: feedback.arrivalRating || "",
