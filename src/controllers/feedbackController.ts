@@ -54,12 +54,14 @@ export const customerFeedback = async (req: Request, res: Response) => {
       immigrationAssistance: feedback.immigrationAssistance || "",
       meetInOrOutside: feedback.meetInOrOutside || "",
       createdAt: feedback.createdAt ? feedback.createdAt.toLocaleString("en-US", {
-      weekday: "short",
+    weekday: "short",
       year: "numeric",
       month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+      hour12: true,
+      timeZone: "Africa/Lagos", 
     }) : "N/A", 
     };
 
