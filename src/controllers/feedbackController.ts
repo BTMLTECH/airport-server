@@ -9,6 +9,7 @@ export const customerFeedback = async (req: Request, res: Response) => {
     const {
       fullName,
       airlineName,
+      tripDate,
       serviceType,
       meetingLocation,
       luggageNo,
@@ -25,6 +26,7 @@ export const customerFeedback = async (req: Request, res: Response) => {
     const sanitizedFeedback = {
       fullName: fullName || undefined,
       airlineName: airlineName || undefined,
+      tripDate: tripDate || undefined,
       serviceType,
       meetingLocation: meetingLocation || undefined,
       luggageNo: luggageNo || undefined,
@@ -45,6 +47,7 @@ export const customerFeedback = async (req: Request, res: Response) => {
       logo: "https://res.cloudinary.com/dhbmufbz8/image/upload/w_80/v1765442901/mmmowztxjy92h800rbra.png",
       fullName: feedback.fullName || "",
       airlineName: feedback.airlineName || "",
+      tripDate: feedback.tripDate || "N/A",
       arrivalComment: feedback.arrivalComment || "",
       departureComment: feedback.departureComment || "",
       arrivalRating: feedback.arrivalRating || "",
@@ -54,7 +57,7 @@ export const customerFeedback = async (req: Request, res: Response) => {
       immigrationAssistance: feedback.immigrationAssistance || "",
       meetInOrOutside: feedback.meetInOrOutside || "",
       createdAt: feedback.createdAt ? feedback.createdAt.toLocaleString("en-US", {
-    weekday: "short",
+      weekday: "short",
       year: "numeric",
       month: "short",
       day: "numeric",

@@ -5,7 +5,8 @@ import { Schema, model, Document } from "mongoose";
 // ----------------------------
 export interface FeedbackDocument extends Document {
   fullName: string;        
-  airlineName: string;     
+  airlineName: string;   
+  tripDate?: string;  
 
   serviceType: "arrival" | "departure";
 
@@ -34,7 +35,8 @@ export interface FeedbackDocument extends Document {
 const FeedbackSchema = new Schema<FeedbackDocument>(
   {
     fullName: { type: String, required: true },        
-    airlineName: { type: String, required: true },     
+    airlineName: { type: String, required: true },    
+    tripDate: { type: String, required: true }, 
     serviceType: { type: String, enum: ["arrival", "departure"], required: true },
 
     // Arrival
