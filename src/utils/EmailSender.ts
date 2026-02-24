@@ -15,10 +15,11 @@ interface EmailOptions {
 export const sendMailToUser = async (
   options: EmailOptions,
 ): Promise<{ accepted: string[]; rejected: string[] }> => {
+
   const transporter: Transporter = nodemailer.createTransport({
     host: process.env.SMPT_HOST,
-    port: parseInt(process.env.SMPT_PORT || '465'),
-    secure: true,
+    port: parseInt(process.env.SMPT_PORT || '587'),
+    secure: false,
     auth: {
       user: process.env.SMPT_MAIL,
       pass: process.env.SMPT_PASSWORD,
@@ -26,11 +27,12 @@ export const sendMailToUser = async (
     tls: {
       rejectUnauthorized: false,
     },
-    logger: true,
-    debug: true,
+    // logger: true,
+    // debug: true,
   });
 
   const { data, email, subject, template } = options;
+  // console.log("Preparing to send email with options:", options);
 
   const templatePath = path.join(__dirname, '../mail', template);
   const html = await ejs.renderFile(templatePath, data);

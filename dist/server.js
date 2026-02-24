@@ -54,8 +54,7 @@ const MONGO_URI = process.env.MONGO_URI;
 mongoose_1.default
     .connect(MONGO_URI)
     .then(() => console.log("✅ Connected to MongoDB"))
-    .catch((err) => {
-    console.error("❌ MongoDB connection error:", err);
+    .catch(() => {
     process.exit(1);
 });
 // -------------------------------

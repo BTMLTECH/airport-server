@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>BTM Travel - Booking Confirmation</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f8fb;
+            color: #003366;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .email-wrapper {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            border: 1px solid #ffd580;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .logo-container {
+            text-align: center;
+            padding: 20px;
+            background-color: #fff7e6;
+            border-bottom: 1px solid #ffd580;
+        }
+
+        .logo-container img {
+            max-width: 80px;
+            height: auto;
+        }
+
+        .email-header {
+            background-color: #ffa30f;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .email-body {
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 15px;
+            background-color: #ffa30f;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .email-footer {
+            background-color: #fff7e6;
+            padding: 15px;
+            text-align: center;
+            font-size: 13px;
+            border-top: 1px solid #ffd580;
+            color: #003366;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="email-wrapper">
+
+        <!-- LOGO -->
+        <div class="logo-container">
+            <img src="<%= logo %>" alt="BTM Travel Logo" />
+        </div>
+
+        <div class="email-header">
+            Booking Confirmation - <%= booking.type.toUpperCase() %> Booking
+        </div>
+
+        <div class="email-body">
+            <p>Hi <strong><%= booking.clientName %></strong>,</p>
+
+            <p>Your booking has been successfully received. Below are your booking details:</p>
+
+            <p><strong>Booking Details:</strong></p>
+            <ul>
+                <li><strong>Client Name:</strong> <%= booking.clientName %></li>
+                <li><strong>TRAACS Code:</strong> <%= booking.traacsCode %></li>
+                <li><strong>Company Email:</strong> <%= booking.companyEmail %></li>
+
+                <% if (booking.bookerEmail) { %>
+                    <li><strong>Booker Email:</strong> <%= booking.bookerEmail %></li>
+                <% } %>
+
+                <% if (booking.bookerName) { %>
+                    <li><strong>Booker Name:</strong> <%= booking.bookerName %></li>
+                <% } %>
+
+                <% if (booking.paymentDetail) { %>
+                    <li><strong>Payment Detail:</strong> <%= booking.paymentDetail %></li>
+                <% } %>
+
+                <% if (booking.receiptFile) { %>
+                    <li><strong>Receipt File:</strong> <a href="<%= booking.receiptFile %>" target="_blank">View Receipt</a></li>
+                <% } %>
+            </ul>
+
+            <p>If you have any questions or need support, feel free to reach out to us.</p>
+
+            <!-- <a href="https://protocol.btmtravel.net/feedback" class="btn" target="_blank">Give Feedback</a> -->
+        </div>
+
+        <div class="email-footer">
+            © <%= new Date().getFullYear() %> BTM Travel. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>
