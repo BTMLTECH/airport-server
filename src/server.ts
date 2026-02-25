@@ -37,21 +37,32 @@ const allowedOrigins = [
   "http://51.75.154.196:8080",
   "http://51.75.154.196",
   "https://protocol2.btmtravel.net",
-  // "http://localhost:8080"
 ];
 
 
+// app.use(
+//   cors({
+//     origin: (origin, callback) => {
+//       if (!origin) return callback(null, true); // server-to-server / Postman
+//       if (allowedOrigins.includes(origin)) return callback(null, true);
+//       callback(new Error(`Origin ${origin} not allowed by CORS`), false);
+//     },
+//     credentials: true,
+//   })
+// );
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // server-to-server / Postman
-      if (allowedOrigins.includes(origin)) return callback(null, true);
+      if (!origin) return callback(null, true);
+      // Trim both sides for comparison
+      const cleanOrigin = origin.trim();
+      const cleanAllowed = allowedOrigins.map(o => o.trim());
+      if (cleanAllowed.includes(cleanOrigin)) return callback(null, true);
       callback(new Error(`Origin ${origin} not allowed by CORS`), false);
     },
     credentials: true,
   })
 );
-
 // -------------------------------
 // MongoDB connection
 // -------------------------------
