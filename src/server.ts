@@ -89,8 +89,8 @@ app.use("/api", feedbackRoutes);
 // -------------------------------
 // Start server
 // -------------------------------
-const PORT = process.env.PORT || 8081;
-app.listen(PORT, () => {
+const PORT = Number(process.env.PORT) || 8081;
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
 
