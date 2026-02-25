@@ -3,6 +3,8 @@ import { Booking } from "../model/TraacBooking";
 import { sendEmail } from "../utils/emailUtil";
 import { uploadToCloudinary } from "../utils/cloudinary";
 
+
+
 export const traacBooking = async (req: Request, res: Response) => {
   try {
     const { type } = req.body;
