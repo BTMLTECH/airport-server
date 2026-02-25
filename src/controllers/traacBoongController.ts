@@ -2,13 +2,13 @@ import { Request, Response } from "express";
 import { Booking } from "../model/TraacBooking";
 import { sendEmail } from "../utils/emailUtil";
 import { uploadToCloudinary } from "../utils/cloudinary";
-import fs from "fs";
-import path from "path";
+// import fs from "fs";
+// import path from "path";
 
-const svgPath = path.join(__dirname, "../assets/btm.svg");
-const svgBuffer = fs.readFileSync(svgPath);
-const svgBase64 = svgBuffer.toString("base64");
-const logoDataUrl = `data:image/svg+xml;base64,${svgBase64}`;
+// const svgPath = path.join(__dirname, "../assets/btm.svg");
+// const svgBuffer = fs.readFileSync(svgPath);
+// const svgBase64 = svgBuffer.toString("base64");
+// const logoDataUrl = `data:image/svg+xml;base64,${svgBase64}`;
 
 export const traacBooking = async (req: Request, res: Response) => {
   try {
@@ -71,7 +71,9 @@ export const traacBooking = async (req: Request, res: Response) => {
 
     const emailData = {
       booking,
-      logo: logoDataUrl,
+      // logo: logoDataUrl,
+      logo: "https://res.cloudinary.com/dhbmufbz8/image/upload/w_80/v1765442901/mmmowztxjy92h800rbra.png",
+
       companyName: "TBS",
     };
 
