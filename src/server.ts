@@ -3,7 +3,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import "./cron/cronWorker";
+// import "./cron/cronWorker";
 
 // Routes
 import adminRoutes from "./routes/adminRoutes";
@@ -36,6 +36,7 @@ const allowedOrigins = [
   "http://protocol.btmtravel.net",
   "http://51.75.154.196:8080",
   "http://51.75.154.196",
+  "https://protocol2.btmtravel.net",
   // "http://localhost:8080"
 ];
 
