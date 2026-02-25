@@ -25,6 +25,7 @@ export const customerFeedback = async (req: Request, res: Response) => {
       departureRating,
     } = req.body;
 
+    console.log("Received feedback:", req.body);
 
     const sanitizedFeedback = {
       fullName: fullName || undefined,
@@ -71,6 +72,7 @@ export const customerFeedback = async (req: Request, res: Response) => {
     }) : "N/A", 
     };
 
+    console.log("Prepared email data:", emailData);
 
     // List of emails to send
     const recipients = [process.env.HR_EMAIL!, process.env.CUSTOMER_DETAIL_EMAIL!];
