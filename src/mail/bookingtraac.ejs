@@ -93,18 +93,37 @@
 
             <p>Your booking has been successfully received. Below are your booking details:</p>
 
+            <p><strong>Passenger Information:</strong></p>
+            <ul>
+                <li><strong>Full Name (as on passport):</strong> <%= booking.fullName %></li>
+                <li><strong>Email:</strong> <%= booking.email %></li>
+                <li><strong>Phone:</strong> <%= booking.phone %></li>
+            </ul>
+
+            <p><strong>Flight Details:</strong></p>
+            <ul>
+                <li><strong>Flight Date:</strong> <%= booking.flightDate %></li>
+                <li><strong>Flight Time:</strong> <%= booking.flightTime %></li>
+                <li><strong>Airline & Flight Number:</strong> <%= booking.airlineFlightNumber %></li>
+                <li><strong>Arrival City:</strong> <%= booking.arrivalCity %></li>
+                <li><strong>Number of Passengers:</strong> <%= booking.numberOfPassengers %></li>
+                <% if (booking.specialRequests) { %>
+                    <li><strong>Special Requests:</strong> <%= booking.specialRequests %></li>
+                <% } %>
+            </ul>
+
             <p><strong>Booking Details:</strong></p>
             <ul>
                 <li><strong>Client Name:</strong> <%= booking.clientName %></li>
                 <li><strong>TRAACS Code:</strong> <%= booking.traacsCode %></li>
                 <li><strong>Company Email:</strong> <%= booking.companyEmail %></li>
 
-                <% if (booking.bookerEmail) { %>
-                    <li><strong>Booker Email:</strong> <%= booking.bookerEmail %></li>
-                <% } %>
-
                 <% if (booking.bookerName) { %>
                     <li><strong>Booker Name:</strong> <%= booking.bookerName %></li>
+                <% } %>
+
+                <% if (booking.bookerEmail) { %>
+                    <li><strong>Booker Email:</strong> <%= booking.bookerEmail %></li>
                 <% } %>
 
                 <% if (booking.paymentDetail) { %>
@@ -118,7 +137,7 @@
 
             <p>If you have any questions or need support, feel free to reach out to us.</p>
 
-            <!-- <a href="https://protocol.btmtravel.net/feedback" class="btn" target="_blank">Give Feedback</a> -->
+            <!-- <a href="https://protocol.btmtravel.net/feedback " class="btn" target="_blank">Give Feedback</a> -->
         </div>
 
         <div class="email-footer">
